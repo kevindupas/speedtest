@@ -7,7 +7,10 @@ const SpeedTest = () => {
   const testDownloadSpeed = async () => {
     setTesting(true);
 
-    const response = await fetch('https://api.fast.com/netflix/speedtest/v2?https=true&token=YXNkZmFzZGxmbnNkYWZoYXNkZmhrYWxm&urlCount=5');
+    const proxyUrl = 'https://aged-butterfly-8219.dupas-dev.workers.dev/?url=';
+    const apiUrl = 'https://api.fast.com/netflix/speedtest/v2?https=true&token=YXNkZmFzZGxmbnNkYWZoYXNkZmhrYWxm&urlCount=5';
+
+    const response = await fetch(proxyUrl + encodeURIComponent(apiUrl));
     const data = await response.json();
     const testUrl = data.urls[0];
 
