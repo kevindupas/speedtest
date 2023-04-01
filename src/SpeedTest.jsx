@@ -6,7 +6,8 @@ const SpeedTest = () => {
   const [testing, setTesting] = useState(false);
 
   const getNearestServer = async () => {
-    const response = await fetch('https://locate.measurementlab.net/v2/nearest/ndt');
+    const proxyUrl = '/api/proxy?url='; // Utiliser la fonction sans serveur proxy de Vercel
+    const response = await fetch(proxyUrl + encodeURIComponent('https://locate.measurementlab.net/v2/nearest/ndt'));
     const data = await response.json();
     return data;
   };
