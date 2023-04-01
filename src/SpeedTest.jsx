@@ -2,39 +2,68 @@ import React, { useState } from "react";
 
 const downloadUrl = 'https://test.kevindupas.com/download-test-file';
 const uploadUrl = "https://test.kevindupas.com/upload-test-file";
+const numberOfTests = 10;
+const testDuration = 1000; // 1000 ms = 1 s
+const uploadFileSize = 128 * 1024; // 128 Ko
 
 function SpeedTest() {
   const [downloadSpeed, setDownloadSpeed] = useState(null);
   const [uploadSpeed, setUploadSpeed] = useState(null);
 
   async function testDownload() {
-    const startTime = new Date().getTime();
-    const response = await fetch(downloadUrl);
-    const endTime = new Date().getTime();
-    const duration = (endTime - startTime) / 1000;
+    let downloadResults = [];
 
-    const fileSizeInBytes = 50 * 1024 * 1024;
-    const fileSizeInBits = fileSizeInBytes * 8;
-    const downloadSpeedMbps = (fileSizeInBits / duration) / (1024 * 1024);
-    return downloadSpeedMbps;
+    for (let i = 0; i < numberOfTests; i++) {
+      const startTime = new Date().getTime();
+      const response = await fetch(downloadUrl, { cache: "no-store" });
+      const endTime = new Date().getTime();
+      const duration = (endTime - startTime) / 1000;
+
+      const fileSizeInBytes = 50 * 1024 * 1024;
+      const fileSizeInBits = fileSizeInBytes * 8;
+      const downloadSpeedMbps = (fileSizeInBits / duration) / (1024 * 1024);
+      downloadResults.push(downloadSpeedMbps);
+      setDownloadSpeed(downloadSpeedMbps);
+
+      // Wait for the next test
+      if (i < numberOfTests - 1) {
+        await new Promise((resolve) => setTimeout(resolve, testDuration));
+      }
+    }
+
+    const averageDownloadSpeed = downloadResults.reduce((a, b) => a + b, 0) / numberOfTests;
+    return averageDownloadSpeed;
   }
 
   async function testUpload() {
-    const data = new FormData();
-    data.append("file", new Blob([new ArrayBuffer(1)]), "upload-test-file");
+    let uploadResults = [];
 
-    const startTime = new Date().getTime();
-    await fetch(uploadUrl, {
-      method: "POST",
-      body: data,
-    });
-    const endTime = new Date().getTime();
-    const duration = (endTime - startTime) / 1000;
+    for (let i = 0; i < numberOfTests; i++) {
+      const data = new FormData();
+      data.append("file", new Blob([new ArrayBuffer(uploadFileSize)]), "upload-test-file");
 
-    const fileSizeInBytes = 1;
-    const fileSizeInBits = fileSizeInBytes * 8;
-    const uploadSpeedMbps = (fileSizeInBits / duration) / (1024 * 1024);
-    return uploadSpeedMbps;
+      const startTime = new Date().getTime();
+      await fetch(uploadUrl, {
+        method: "POST",
+        body: data,
+      });
+      const endTime = new Date().getTime();
+      const duration = (endTime - startTime) / 1000;
+
+      const fileSizeInBytes = uploadFileSize;
+      const fileSizeInBits = fileSizeInBytes * 8;
+      const uploadSpeedMbps = (fileSizeInBits / duration) / (1024 * 1024);
+      uploadResults.push(uploadSpeedMbps);
+      setUploadSpeed(uploadSpeedMbps);
+
+      // Wait for the next test
+      if (i < numberOfTests - 1) {
+        await new Promise((resolve) => setTimeout(resolve, testDuration));
+      }
+    }
+
+    const averageUploadSpeed = uploadResults.reduce((a, b) => a + b, 0) / numberOfTests;
+    return averageUploadSpeed;
   }
 
   async function startTest() {
