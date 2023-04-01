@@ -1,47 +1,61 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 
-const SpeedTest = () => {
+const downloadUrl = 'https://test.kevindupas.com/download-test-file';
+const uploadUrl = "https://test.kevindupas.com/upload-test-file";
+
+function SpeedTest() {
   const [downloadSpeed, setDownloadSpeed] = useState(null);
-  const [testing, setTesting] = useState(false);
+  const [uploadSpeed, setUploadSpeed] = useState(null);
 
-  const testDownloadSpeed = async () => {
-    setTesting(true);
+  async function testDownload() {
+    const startTime = new Date().getTime();
+    const response = await fetch(downloadUrl);
+    const endTime = new Date().getTime();
+    const duration = (endTime - startTime) / 1000;
 
-    const proxyUrl = 'https://aged-butterfly-8219.dupas-dev.workers.dev/?url=';
-    const apiUrl = 'https://api.fast.com/netflix/speedtest/v2?https=true&token=YXNkZmFzZGxmbnNkYWZoYXNkZmhrYWxm&urlCount=5';
+    const fileSizeInBytes = 50 * 1024 * 1024;
+    const fileSizeInBits = fileSizeInBytes * 8;
+    const downloadSpeedMbps = (fileSizeInBits / duration) / (1024 * 1024);
+    return downloadSpeedMbps;
+  }
 
-    const response = await fetch(proxyUrl + encodeURIComponent(apiUrl));
-    const data = await response.json();
+  async function testUpload() {
+    const data = new FormData();
+    data.append("file", new Blob([new ArrayBuffer(1)]), "upload-test-file");
 
-    if (data && data.urls && data.urls.length > 0) {
-      const testUrl = data.urls[0];
+    const startTime = new Date().getTime();
+    await fetch(uploadUrl, {
+      method: "POST",
+      body: data,
+    });
+    const endTime = new Date().getTime();
+    const duration = (endTime - startTime) / 1000;
 
-      const startTime = performance.now();
-      const testSize = 25 * 1024 * 1024; // 25 MB
+    const fileSizeInBytes = 1;
+    const fileSizeInBits = fileSizeInBytes * 8;
+    const uploadSpeedMbps = (fileSizeInBits / duration) / (1024 * 1024);
+    return uploadSpeedMbps;
+  }
 
-      const testResponse = await fetch(testUrl);
-      await testResponse.arrayBuffer();
-      const endTime = performance.now();
+  async function startTest() {
+    setDownloadSpeed(null);
+    setUploadSpeed(null);
 
-      const duration = (endTime - startTime) / 1000;
-      const speed = (testSize / duration) / (1024 * 1024);
+    const downloadResult = await testDownload();
+    setDownloadSpeed(downloadResult);
 
-      setDownloadSpeed(speed.toFixed(2));
-    } else {
-      console.error('No test URLs found');
-    }
-
-    setTesting(false);
-  };
+    const uploadResult = await testUpload();
+    setUploadSpeed(uploadResult);
+  }
 
   return (
     <div>
-      <button onClick={testDownloadSpeed} disabled={testing}>
-        {testing ? 'Testing...' : 'Test Download Speed'}
-      </button>
-      {downloadSpeed && <p>Download speed: {downloadSpeed} Mbps</p>}
+      <h1>Test de vitesse</h1>
+      <button onClick={startTest}>Commencer le test</button>
+      {downloadSpeed && <p>Vitesse de téléchargement : {downloadSpeed.toFixed(2)} Mbps</p>}
+      {uploadSpeed && <p>Vitesse de téléversement : {uploadSpeed.toFixed(2)} Mbps</p>}
     </div>
   );
-};
+}
 
 export default SpeedTest;
