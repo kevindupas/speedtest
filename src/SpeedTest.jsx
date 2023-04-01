@@ -4,7 +4,7 @@ const downloadUrl = 'https://test.kevindupas.com/download-test-file';
 const uploadUrl = "https://test.kevindupas.com/upload-test-file";
 const numberOfTests = 10;
 const testDuration = 1000; // 1000 ms = 1 s
-const uploadFileSize = 128 * 1024; // 128 Ko
+const uploadFileSize = 512 * 1024; // 512 Ko
 
 function SpeedTest() {
   const [downloadSpeed, setDownloadSpeed] = useState(null);
@@ -19,7 +19,7 @@ function SpeedTest() {
       const endTime = new Date().getTime();
       const duration = (endTime - startTime) / 1000;
 
-      const fileSizeInBytes = 50 * 1024 * 1024;
+      const fileSizeInBytes = 10 * 1024 * 1024; // 10 Mo
       const fileSizeInBits = fileSizeInBytes * 8;
       const downloadSpeedMbps = (fileSizeInBits / duration) / (1024 * 1024);
       downloadResults.push(downloadSpeedMbps);
