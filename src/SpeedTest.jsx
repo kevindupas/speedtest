@@ -12,19 +12,25 @@ const SpeedTest = () => {
 
     const response = await fetch(proxyUrl + encodeURIComponent(apiUrl));
     const data = await response.json();
-    const testUrl = data.urls[0];
 
-    const startTime = performance.now();
-    const testSize = 25 * 1024 * 1024; // 25 MB
+    if (data && data.urls && data.urls.length > 0) {
+      const testUrl = data.urls[0];
 
-    const testResponse = await fetch(testUrl);
-    const testData = new Uint8Array(await testResponse.arrayBuffer());
-    const endTime = performance.now();
+      const startTime = performance.now();
+      const testSize = 25 * 1024 * 1024; // 25 MB
 
-    const duration = (endTime - startTime) / 1000;
-    const speed = (testSize / duration) / (1024 * 1024);
+      const testResponse = await fetch(testUrl);
+      await testResponse.arrayBuffer();
+      const endTime = performance.now();
 
-    setDownloadSpeed(speed.toFixed(2));
+      const duration = (endTime - startTime) / 1000;
+      const speed = (testSize / duration) / (1024 * 1024);
+
+      setDownloadSpeed(speed.toFixed(2));
+    } else {
+      console.error('No test URLs found');
+    }
+
     setTesting(false);
   };
 
