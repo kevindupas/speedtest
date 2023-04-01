@@ -13,6 +13,12 @@ module.exports = async (req, res) => {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3',
       },
     });
+
+    if (!response.ok) {
+      res.status(response.status).send(`Error: ${response.statusText}`);
+      return;
+    }
+
     const data = await response.json();
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.json(data);
