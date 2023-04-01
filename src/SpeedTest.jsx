@@ -2,60 +2,35 @@ import React, { useState } from 'react';
 
 const SpeedTest = () => {
   const [downloadSpeed, setDownloadSpeed] = useState(null);
-  const [uploadSpeed, setUploadSpeed] = useState(null);
   const [testing, setTesting] = useState(false);
 
-  const getNearestServer = async () => {
-    const proxyUrl = 'https://aged-butterfly-8219.dupas-dev.workers.dev/?url='; // Utilisez l'URL de votre Cloudflare Worker
-    const response = await fetch(proxyUrl + encodeURIComponent('https://locate.measurementlab.net/v2/nearest/ndt'));
-    const data = await response.json();
-    return data;
-  };
-
-
-  const testSpeed = async () => {
+  const testDownloadSpeed = async () => {
     setTesting(true);
-    const nearestServer = await getNearestServer();
-    const ndtServer = `${nearestServer.url}ndt/v7/download`;
 
-    const websocket = new WebSocket(ndtServer);
+    const response = await fetch('https://api.fast.com/netflix/speedtest/v2?https=true&token=YXNkZmFzZGxmbnNkYWZoYXNkZmhrYWxm&urlCount=5');
+    const data = await response.json();
+    const testUrl = data.urls[0];
 
-    websocket.onopen = () => {
-      console.log('WebSocket connection opened');
-      websocket.send(JSON.stringify({ msg: 'start', tests: 'download,upload' }));
-    };
+    const startTime = performance.now();
+    const testSize = 25 * 1024 * 1024; // 25 MB
 
-    websocket.onmessage = (event) => {
-      const message = JSON.parse(event.data);
+    const testResponse = await fetch(testUrl);
+    const testData = new Uint8Array(await testResponse.arrayBuffer());
+    const endTime = performance.now();
 
-      if (message.msg === 'measurement' && message.result) {
-        if (message.result.download) {
-          setDownloadSpeed((message.result.download * 0.000008).toFixed(2));
-        }
-        if (message.result.upload) {
-          setUploadSpeed((message.result.upload * 0.000008).toFixed(2));
-        }
-      }
-    };
+    const duration = (endTime - startTime) / 1000;
+    const speed = (testSize / duration) / (1024 * 1024);
 
-    websocket.onerror = (error) => {
-      console.error('WebSocket error:', error);
-      setTesting(false);
-    };
-
-    websocket.onclose = () => {
-      console.log('WebSocket connection closed');
-      setTesting(false);
-    };
+    setDownloadSpeed(speed.toFixed(2));
+    setTesting(false);
   };
 
   return (
     <div>
-      <button onClick={testSpeed} disabled={testing}>
-        Tester la vitesse de connexion
+      <button onClick={testDownloadSpeed} disabled={testing}>
+        {testing ? 'Testing...' : 'Test Download Speed'}
       </button>
-      <p>Vitesse de téléchargement: {downloadSpeed} Mbps</p>
-      <p>Vitesse de téléversement: {uploadSpeed} Mbps</p>
+      {downloadSpeed && <p>Download speed: {downloadSpeed} Mbps</p>}
     </div>
   );
 };
