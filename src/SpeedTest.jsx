@@ -4,11 +4,13 @@ const downloadUrl = 'https://test.kevindupas.com/download-test-file';
 const uploadUrl = "https://test.kevindupas.com/upload-test-file";
 const numberOfTests = 10;
 const testDuration = 1000; // 1000 ms = 1 s
-const uploadFileSize = 512 * 1024; // 512 Ko
+const downloadFileSize = 1.5 * 1024 * 1024; // 5 Mo
+const uploadFileSize = 1.5 * 1024 * 1024; // 1 Mo
 
 function SpeedTest() {
   const [downloadSpeed, setDownloadSpeed] = useState(null);
   const [uploadSpeed, setUploadSpeed] = useState(null);
+  const [isTesting, setIsTesting] = useState(false);
 
   async function testDownload() {
     let downloadResults = [];
@@ -19,7 +21,7 @@ function SpeedTest() {
       const endTime = new Date().getTime();
       const duration = (endTime - startTime) / 1000;
 
-      const fileSizeInBytes = 10 * 1024 * 1024; // 10 Mo
+      const fileSizeInBytes = downloadFileSize;
       const fileSizeInBits = fileSizeInBytes * 8;
       const downloadSpeedMbps = (fileSizeInBits / duration) / (1024 * 1024);
       downloadResults.push(downloadSpeedMbps);
@@ -67,6 +69,7 @@ function SpeedTest() {
   }
 
   async function startTest() {
+    setIsTesting(true);
     setDownloadSpeed(null);
     setUploadSpeed(null);
 
@@ -75,12 +78,18 @@ function SpeedTest() {
 
     const uploadResult = await testUpload();
     setUploadSpeed(uploadResult);
+    setIsTesting(false);
   }
+
+
+
 
   return (
     <div>
       <h1>Test de vitesse</h1>
-      <button onClick={startTest}>Commencer le test</button>
+      <button onClick={startTest} disabled={isTesting}>
+        Commencer le test
+      </button>
       {downloadSpeed && <p>Vitesse de téléchargement : {downloadSpeed.toFixed(2)} Mbps</p>}
       {uploadSpeed && <p>Vitesse de téléversement : {uploadSpeed.toFixed(2)} Mbps</p>}
     </div>
