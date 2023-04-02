@@ -1,9 +1,10 @@
-import React from 'react'
-import ReactDOM from 'react-dom/client'
-import SpeedTest from './SpeedTest'
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import SpeedTest from './SpeedTest';
+import './index.css';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
-  <React.StrictMode>
-    <SpeedTest />
-  </React.StrictMode>,
-)
+    <React.StrictMode>
+        <SpeedTest />
+    </React.StrictMode>,
+);
