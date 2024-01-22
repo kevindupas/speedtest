@@ -2,8 +2,8 @@
 import React, { useEffect, useState } from 'react';
 import GaugeChart from './Charts/GaugeChart';
 
-const downloadUrl = 'https://github.com/kevindupas/file_speedtest/raw/main/download-test-file';
-const uploadUrl = 'https://test.kevindupas.com/upload-test-file';
+const downloadUrl = 'https://file-speedtest-i8nmefw7f-dupasdev.vercel.app/download-test-file';
+const uploadUrl = 'https://file-speedtest-i8nmefw7f-dupasdev.vercel.app/upload-test-file';
 const numberOfTests = 10;
 const testDuration = 1000; // 1000 ms = 1 s
 const downloadFileSize = 1.5 * 1024 * 1024; // 5 Mo
